@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s # Raspa a cada 15 segundos
+
+scrape_configs:
+  # O próprio Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # A Aplicação de Exemplo
+  - job_name: 'demo-app'
+    # 'app' é o nome do serviço no docker-compose.yml
+    static_configs:
+      - targets: 98.80.135.168:8080
