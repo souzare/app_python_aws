@@ -12,7 +12,6 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 app = Flask(__name__)
 
-# Configurar tracer
 resource = Resource(attributes={
     "service.name": "demo-app"
 })
@@ -25,7 +24,6 @@ provider.add_span_processor(processor)
 
 trace.set_tracer_provider(provider)
 
-# Instrumentar Flask automaticamente
 FlaskInstrumentor().instrument_app(app)
 
 @app.route("/")
