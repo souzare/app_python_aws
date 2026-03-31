@@ -3,29 +3,35 @@ version: "3.8"
 services:
   app:
     build: .
+    container_name: demo-app
     ports:
       - "5000:5000"
+    depends_on:
+      - otel-collector
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
 
   otel-collector:
-  image: otel/opentelemetry-collector-contrib:0.88.0
-  volumes:
-    - ./otel-config.yaml:/etc/otel-config.yaml
-  command: ["--config=/etc/otel-config.yaml"]
-  ports:
-    - "4317:4317"
+    image: otel/opentelemetry-collector-contrib:0.88.0
+    container_name: otel-collector
+    volumes:
+      - ./otel-config.yaml:/etc/otel-config.yaml
+    command: ["--config=/etc/otel-config.yaml"]
+    ports:
+      - "4317:4317"
 
   jaeger:
-  image: jaegertracing/all-in-one:1.54
-  ports:
-    - "16686:16686"
-    - "4317:4317"
-  environment:
-    - COLLECTOR_OTLP_ENABLED=true
+    image: jaegertracing/all-in-one:1.54
+    container_name: jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
 
   prometheus:
     image: prom/prometheus:v2.48.0
+    container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
@@ -33,5 +39,8 @@ services:
 
   grafana:
     image: grafana/grafana:10.2.0
+    container_name: grafana
     ports:
       - "3000:3000"
+    depends_on:
+      - prometheus
