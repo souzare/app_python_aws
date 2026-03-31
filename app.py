@@ -2,7 +2,31 @@ from flask import Flask
 import time
 import random
 
+# OpenTelemetry
+from opentelemetry import trace
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
 app = Flask(__name__)
+
+# Configurar tracer
+resource = Resource(attributes={
+    "service.name": "demo-app"
+})
+
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(
+    OTLPSpanExporter(endpoint="http://otel-collector:4317", insecure=True)
+)
+provider.add_span_processor(processor)
+
+trace.set_tracer_provider(provider)
+
+# Instrumentar Flask automaticamente
+FlaskInstrumentor().instrument_app(app)
 
 @app.route("/")
 def home():
